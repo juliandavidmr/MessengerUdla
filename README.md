@@ -12,6 +12,11 @@
     2. Soporte para registro de usuarios.
     3. Detección de cambios automáticos.
 
+## **Capturas**
+
+<img src="./login.png" title="Login"/>
+<img src="./chat.png" title="chat"/>
+
 
 ## **Desarrollo**
 
@@ -215,3 +220,12 @@ export class HomePage {
   </p>
 </ion-content>
 ```
+
+
+### Más información
+
+- [AngularFire2-Auth](https://github.com/angular/angularfire2/blob/master/docs/5-user-authentication.md)
+- [Auth Firebase](http://tphangout.com/ionic-2-authentication-using-firebase)
+- [Guía en inglés](https://www.joshmorony.com/building-a-crud-ionic-2-application-with-firebase-angularfire)
+- [Guía 2 en inglés](https://www.pluralsight.com/guides/front-end-javascript/using-angularfire2-to-build-ionic-2-firebase-apps)
+- [Quickstart firebase](https://firebase.google.com/docs/database/security/quickstart)
