@@ -1,0 +1,20 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Login</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-item>
+    <ion-label stacked>Correo</ion-label>
+    <ion-input [(ngModel)]="email" type="email" placeholder="¿Cúal es tu correo?"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label stacked>Contraseña</ion-label>
+    <ion-input [(ngModel)]="pass" type="password" placeholder="Contraseña"></ion-input>
+  </ion-item>
+
+  <button ion-button block (click)="crear(email, pass)">Crear usuario</button>
+  <button ion-button block (click)="login(email, pass)">Entrar</button>
+  <button ion-button block (click)="logout()">Cerrar sesión</button>
+</ion-content>

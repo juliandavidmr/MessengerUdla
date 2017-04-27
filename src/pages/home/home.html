@@ -5,13 +5,18 @@
 </ion-header>
 
 <ion-content padding>
-  <h2>Welcome to Ionic!</h2>
+  <ion-item>
+    <ion-label stacked>Mensaje</ion-label>
+    <ion-input [(ngModel)]="mensaje" type="text" placeholder="Escribe un mensaje"></ion-input>
+  </ion-item>
+  <button ion-button color="secondary" outline full (click)="enviar(mensaje)">Enviar</button>
   <p>
-    This starter project comes with simple tabs-based layout for apps
-    that are going to primarily use a Tabbed UI.
-  </p>
-  <p>
-    Take a look at the <code>src/pages/</code> directory to add or change tabs,
-    update any existing page or create new pages.
+    <ion-list>
+      <ion-item *ngFor="let msg of mensajes | async">
+        <h2>{{ msg.mensaje }}</h2>
+        <h3>{{ msg.usuario }}</h3>
+        <p>{{ msg.fecha }}</p>
+      </ion-item>
+    </ion-list>
   </p>
 </ion-content>

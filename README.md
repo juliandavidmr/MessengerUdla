@@ -15,6 +15,8 @@
 
 ## **Desarrollo**
 
+### **Crear proyecto e instalar paquetes**
+
 - Crear proyecto con estilo tabs por defecto:
 ```bash
 $ ionic start MessengerUdla --v2
@@ -27,4 +29,189 @@ $ npm istall angularfire2 firebase --save
 
 # O usando yarn
 $ yarn add angularfire2 firebase
+```
+
+### **Referenciar credenciales y tokens de Firebase**
+Agregar credenciales y tokens de configuración de Firebase.
+
+```ts
+// app.module.ts
+
+// ...
+import { AngularFireModule, AngularFire } from "angularfire2";
+
+const COMMON_CONFIG = {
+  apiKey: "AIzaSyDw8eKS2GCZ8dePI-Dhs15DtF6ewtCpg1Q",
+  authDomain: "messenger-6168d.firebaseapp.com",
+  databaseURL: "https://messenger-6168d.firebaseio.com",
+  storageBucket: "messenger-6168d.appspot.com/"
+};
+
+@NgModule({
+  declarations: [/* ... */],
+  imports: [
+    BrowserModule,
+    IonicModule.forRoot(MyApp),
+    AngularFireModule.initializeApp(COMMON_CONFIG)
+  ],
+  bootstrap: [IonicApp],
+  entryComponents: [/* ... */],
+  providers: [
+    StatusBar,
+    SplashScreen,
+    { provide: ErrorHandler, useClass: IonicErrorHandler },
+    AngularFire
+  ]
+})
+export class AppModule { }
+```
+
+### **Crear elementos para Login**
+
+La vista login permite registrar, ingresar y cerrar sesión. Para el registro es necesario unicamente un usuario y contraseña.
+**Importante:** El registro es necesario para poder enviar mensajes.
+
+> login.ts
+```ts
+import { Component } from '@angular/core';
+import { NavController, NavParams } from 'ionic-angular';
+import { AngularFire, FirebaseListObservable, AuthProviders, AuthMethods } from "angularfire2";
+
+@Component({
+  selector: 'page-login',
+  templateUrl: 'login.html',
+})
+export class Login {
+
+  usuarios: FirebaseListObservable<any>;
+
+  constructor(
+    public navCtrl: NavController,
+    public navParams: NavParams,
+    public af: AngularFire) {
+  }
+
+  crear(email, pass) {
+    this.af.auth.createUser({ email: email, password: pass }).then(res => {
+      console.log("Usuario creado:", res)
+    }).catch(err => {
+      console.log("ERROR: ", err);
+    })
+  }
+
+  login(email, pass) {
+    this.af.auth.login(
+      {
+        email: email,
+        password: pass
+      }, {
+        provider: AuthProviders.Password,
+        method: AuthMethods.Password,
+      }
+    ).then(res => {
+      console.log("Usuario logueado:", res)
+    }).catch(err => {
+      console.log("ERROR: ", err);
+    })
+  }
+
+  logout() {
+    this.af.auth.logout().then(val => {
+      console.log(val);
+    }).catch(err => {
+      console.log("ERROR:", err);
+
+    })
+  }
+
+}
+```
+
+> login.html
+```html
+<ion-header>
+  <ion-navbar>
+    <ion-title>Login</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-item>
+    <ion-label stacked>Correo</ion-label>
+    <ion-input [(ngModel)]="email" type="email" placeholder="¿Cúal es tu correo?"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label stacked>Contraseña</ion-label>
+    <ion-input [(ngModel)]="pass" type="password" placeholder="Contraseña"></ion-input>
+  </ion-item>
+
+  <button ion-button block (click)="crear(email, pass)">Crear usuario</button>
+  <button ion-button block (click)="login(email, pass)">Entrar</button>
+</ion-content>
+```
+
+### **Crear elementos para Home**
+
+La página `Home` permite enviar y recibír mensajes de manera instantánea gracias a Firebase.
+
+> home.ts
+
+```ts
+import { Component } from '@angular/core';
+import { NavController } from 'ionic-angular';
+
+import { AngularFire, FirebaseListObservable } from "angularfire2";
+
+@Component({
+  selector: 'page-home',
+  templateUrl: 'home.html'
+})
+export class HomePage {
+
+  mensaje: string = ''
+  mensajes: FirebaseListObservable<any>
+
+  constructor(
+      public navCtrl: NavController, 
+      public af: AngularFire) {
+    this.mensajes = af.database.list('/mensajes')
+
+    console.log(this.mensajes)
+  }
+
+  enviar(mensaje:string) {
+    this.mensajes.push({
+      mensaje: mensaje,
+      fecha: (new Date()).toString(),
+      usuario: this.af.auth.getAuth().auth.email
+    })
+  }
+
+}
+```
+
+> home.html
+```html
+<ion-header>
+  <ion-navbar>
+    <ion-title>Home</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-item>
+    <ion-label stacked>Mensaje</ion-label>
+    <ion-input [(ngModel)]="mensaje" type="text" placeholder="Escribe un mensaje"></ion-input>
+  </ion-item>
+  <button ion-button color="secondary" outline full (click)="enviar(mensaje)">Enviar</button>
+  <p>
+    <ion-list>
+      <ion-item *ngFor="let msg of mensajes | async">
+        <h2>{{ msg.mensaje }}</h2>
+        <h3>{{ msg.usuario }}</h3>
+        <p>{{ msg.fecha }}</p>
+      </ion-item>
+    </ion-list>
+  </p>
+</ion-content>
 ```
