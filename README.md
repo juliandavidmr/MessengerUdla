@@ -42,8 +42,12 @@ Agregar credenciales y tokens de configuración de Firebase.
 ```ts
 // app.module.ts
 
-// ...
 import { AngularFireModule, AngularFire } from "angularfire2";
+```
+
+Crear objeto para archivos de configuración de Firebase:
+```ts
+// app.module.ts
 
 const COMMON_CONFIG = {
   apiKey: "AIzaSyDw8eKS2GCZ8dePI-Dhs15DtF6ewtCpg1Q",
@@ -51,20 +55,21 @@ const COMMON_CONFIG = {
   databaseURL: "https://messenger-6168d.firebaseio.com",
   storageBucket: "messenger-6168d.appspot.com/"
 };
+```
+
+Referenciar modulos de AngularFire en el `@ngModule`:
+```ts
+// app.module.ts
 
 @NgModule({
-  declarations: [/* ... */],
+  /* ... */,
   imports: [
-    BrowserModule,
-    IonicModule.forRoot(MyApp),
+    /* ... */
     AngularFireModule.initializeApp(COMMON_CONFIG)
   ],
-  bootstrap: [IonicApp],
-  entryComponents: [/* ... */],
+  /* ... */,
   providers: [
-    StatusBar,
-    SplashScreen,
-    { provide: ErrorHandler, useClass: IonicErrorHandler },
+    /* ... */
     AngularFire
   ]
 })
@@ -76,63 +81,75 @@ export class AppModule { }
 La vista login permite registrar, ingresar y cerrar sesión. Para el registro es necesario unicamente un usuario y contraseña.
 **Importante:** El registro es necesario para poder enviar mensajes.
 
-> login.ts
+
+**Crear pagina para Login**, en el archivo `login.ts` se deben colocar las referencias algunos componentes que provee `AngularFire`:
+
 ```ts
-import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+// login.ts
+
 import { AngularFire, FirebaseListObservable, AuthProviders, AuthMethods } from "angularfire2";
+```
+Posteriormente, crear una instancia de `AngularFire` en el constructor: 
+```ts
+// login.ts
 
-@Component({
-  selector: 'page-login',
-  templateUrl: 'login.html',
-})
-export class Login {
+constructor(
+  /* ... */
+  public af: AngularFire) {
+}
+```
 
-  usuarios: FirebaseListObservable<any>;
+Las funciones para registrar, loguear y cerrar se sesión:
 
-  constructor(
-    public navCtrl: NavController,
-    public navParams: NavParams,
-    public af: AngularFire) {
-  }
+> crear usuario
+```ts
+// login.ts
 
-  crear(email, pass) {
-    this.af.auth.createUser({ email: email, password: pass }).then(res => {
-      console.log("Usuario creado:", res)
-    }).catch(err => {
-      console.log("ERROR: ", err);
-    })
-  }
+crear(email, pass) {
+  this.af.auth.createUser({ email: email, password: pass }).then(res => {
+    console.log("Usuario creado:", res)
+  }).catch(err => {
+    console.log("ERROR: ", err);
+  })
+}
+```
+> logear usuario
+```ts
+// login.ts
+login(email, pass) {
+  this.af.auth.login(
+    {
+      email: email,
+      password: pass
+    }, {
+      provider: AuthProviders.Password,
+      method: AuthMethods.Password,
+    }
+  ).then(res => {
+    console.log("Usuario logueado:", res)
+  }).catch(err => {
+    console.log("ERROR: ", err);
+  })
+}
+```
 
-  login(email, pass) {
-    this.af.auth.login(
-      {
-        email: email,
-        password: pass
-      }, {
-        provider: AuthProviders.Password,
-        method: AuthMethods.Password,
-      }
-    ).then(res => {
-      console.log("Usuario logueado:", res)
-    }).catch(err => {
-      console.log("ERROR: ", err);
-    })
-  }
+> cerrar sesión
+```ts
+// login.ts
+logout() {
+  this.af.auth.logout().then(val => {
+    console.log(val);
+  }).catch(err => {
+    console.log("ERROR:", err);
 
-  logout() {
-    this.af.auth.logout().then(val => {
-      console.log(val);
-    }).catch(err => {
-      console.log("ERROR:", err);
-
-    })
-  }
-
+  })
 }
 ```
 
 > login.html
+
+La vista de iniciar sesión debe tener dos elementos de entrada de datos, para esto se hace uso de la directiva `[(ngModel)]`.
+
 ```html
 <ion-header>
   <ion-navbar>
